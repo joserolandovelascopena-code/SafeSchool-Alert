@@ -70,7 +70,7 @@ Si se desea simular el sistema desde un entorno virtual, el proyecto esta dispon
 
 - [SafeSchool Alert](https://www.tinkercad.com/things/fP5tqtgbbGX-copy-of-sistema-safeschool-alert-version-final/editel?returnTo=https%3A%2F%2Fwww.tinkercad.com%2Fdashboard&sharecode=V_xCmYJnCPcHeqlrGn7uIIG3u9PSOKJf7-YNFGOO0YM)
 
-> .[!TIP].
+> [!TIP]
 > Para simular una emergencia por incendio en Tinkercad, de clic en en el sensor de Gas, de color blanco, y traslade la nube de uno al sensor y se activara la alarma automaticamente.
 
 ## Instalación y Configuración
