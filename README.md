@@ -61,7 +61,7 @@ Todos los mensajes enviados entre la aplicación y Arduino siguen un formato est
  Seguridad,Falsa#
 ```
 
-> .[!IMPORTANT].
+> [!IMPORTANT]
 > Si los comandos enviados no llevan al final "#", el sistema no sabrá dónde termina el comando y se quedará esperando a que llegue "#". Siempre al final debe ir un hashtag.
 
 ## Link del proyecto en Tinkercad
