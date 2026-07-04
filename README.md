@@ -15,9 +15,16 @@ El sistema **SafeSchool Alert** es una plataforma de alertas escolares desarroll
 
 ## Tecnologías Utilizadas
 
-- **Tinkercad**
-- **C++**
-- **MIT App Inventor**
+| Tecnología       | Descripción                       |
+| ---------------- | --------------------------------- |
+| Arduino Uno      | Microcontrolador principal        |
+| C++              | Programación del sistema embebido |
+| MIT App Inventor | Desarrollo de la aplicación móvil |
+| Tinkercad        | Simulación del circuito           |
+| Git              | Control de versiones              |
+| GitHub           | Gestión del repositorio           |
+
+---
 
 ## Protocolo de Comunicación
 
