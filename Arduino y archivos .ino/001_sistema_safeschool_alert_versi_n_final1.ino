@@ -1,6 +1,9 @@
 // C++
 //
 
+// Configuración del HARDWARE
+// Pines utilizados,variables globales de estados y temporalizadores 
+
 #include <LiquidCrystal.h>
 LiquidCrystal lcd(12, 11, 10, 9, 8, 7);
 
@@ -8,19 +11,6 @@ int led_Rojo = 6;
 int led_Amari = 5;
 int led_Verde = 4;
 int led_Azul = 3;
-
-unsigned long ultimoCambioLedRoj = 0;
-unsigned long ultimoCambioLedAma = 0;
-unsigned long ultimoCambioLedVer = 0;
-unsigned long ultimoCambioLedAzu = 0;
-unsigned long ultimoCambioSeguro = 0;
-unsigned long ultimoCambioSirenaCT = 0;
-unsigned long ultimoCambioSirenaDT = 0;
-
-bool estadoLedRoj = false;
-bool estadoLedAma = false;
-bool estadoLedVer = false;
-bool estadoLedAzu = false;
 
 int btn_Edi_A_Medica = 13;
 int btn_Edi_A_Seguridad = A1;
@@ -40,15 +30,21 @@ const int UNBRAL_SEGURO = 500;
 char buffer[TAM_BUFFER];
 int indice = 0;
 
+
 bool estadoHumo = false;
 bool yaCambioASeguro = false;
 
+unsigned long ultimoCambioSeguro = 0;
+
+
+// Enum de estados de recibimiento de comandos por serial de la app
 enum estadoRecepcion {
   RECIBIENDO,
   MENSAJE_COMPLETO,
   ERROR_BUFFER,
 };
 
+//Enum de estados del sistema, se encarga de asignar los estados del sistema
 enum estadoEmergencia{
   SEGURO,
   EMERGENCIA_ACTIVA,
@@ -61,6 +57,7 @@ enum estadoEmergencia{
   SEGURIDAD_FALSA,
 };
 
+// Emun de los tipos de emergencia, que el sistema detecta
 enum tipoEmergencia{
   TE_NINGUNA,
   INCENDIO,
@@ -68,6 +65,7 @@ enum tipoEmergencia{
   SEGURIDAD,
 };
 
+// Emun de las ubicaciónes del instituto
 enum zonaEmergencia {
   ZE_NINGUNA,
   EDIF_A,
@@ -75,18 +73,15 @@ enum zonaEmergencia {
   EDIF_C,
 };
 
+//Variables globales de emuns para usar en el loop y funciones del sistema.
 estadoRecepcion estado;
 estadoEmergencia esEmerg;
 tipoEmergencia tipoEmerg;
 zonaEmergencia zona;
 
-
-bool tonoAlto = true;
-bool estadoBuzzer = false;
-
+//Configuración de pines de componestes, pines de pantalla LCD y Serial
 void setup() {
   Serial.begin(9600);
-  Serial.setTimeout(10);
   lcd.begin(16, 2);
 
   pinMode(led_Rojo, OUTPUT);
@@ -114,6 +109,8 @@ void setup() {
   lcd.clear();
 }
 
+// Loop BUCLE PRINCIPAL
+// Ejecuta cada función que realiza una responsabilidad específica (MÓDULOS DEL SISTEMA)
 void loop() {
   sensorHumo();
   btnsEmergencias();
@@ -123,6 +120,7 @@ void loop() {
   sirena();
 }
 
+// Lógica del sensor de Humo, para dectar si hay un incendio automaticamente
 void sensorHumo(){
   int humo = analogRead(sensor);
   
@@ -133,12 +131,15 @@ void sensorHumo(){
   }
   else if(humo < UNBRAL_SEGURO && tipoEmerg == INCENDIO &&
    esEmerg == EMERGENCIA_ACTIVA){
+   esEmerg = SEGURO;
    tipoEmerg = TE_NINGUNA;
    esEmerg = INCENDIO_ATENDIDA;
    mensajeText("Emerg: Incendio","Ha sido Atendida");
    initCronometroSeguro();
   }
 }
+
+/* Modulo de Pulsadore, activa una emergencial, al dar clic en un pulsador*/
 
 void btnsEmergencias(){
   int estadoBtnMe1 = digitalRead(btn_Edi_A_Medica);
@@ -190,7 +191,11 @@ void btnsEmergencias(){
     actualizarLCD();
   }
 }
-        
+    
+/* RECEPCIÓN DE DATOS
+   Buffer donde se almacena el comando recibido desde la App hasta 
+   detectar el carácter de fin '#' */
+
 void leerSerial() {
   
  while (Serial.available() > 0) {
@@ -222,7 +227,7 @@ void leerSerial() {
       indice++;
      }
      else {
-      Serial.println(F("[COMMAND ERROR] El comando sobrepasa el limite permitido.\n"));
+      Serial.println("[COMMAND ERROR] El comando sobrepasa el limite permitido.\n");
       estado = ERROR_BUFFER;
      }
      
@@ -233,6 +238,7 @@ void leerSerial() {
   }
 }
 
+//Detecta cuándo el mensaje fue resivido completamente, al recibir "#"
 void mensajeCompleto(){
   if(estado == MENSAJE_COMPLETO){ 
     enviarMensaje();
@@ -242,54 +248,56 @@ void mensajeCompleto(){
 }
 
 void enviarMensaje() {
-  Serial.println(F("[SUCCESS] Comunicacion con App establecida sin errores."));
+  Serial.println("[SUCCESS] Comunicacion con App establecida sin errores.");
   descifrarEstados(buffer);
 }
 
+// Interpreta el comando recibido desde la aplicación
+// y actualiza la máquina de estados del sistema.
 void descifrarEstados(String comando) {
   if(esEmerg != SEGURO){
-    if (comando == "Medica,EnProceso") {
+    if (comando == "Medica,EnProceso" && tipoEmerg == MEDICA){
       esEmerg = MEDICA_PROCESO;
       actualizarEstados();
-      Serial.println(F("Medica en proceso\n"));
+      Serial.println("Medica en proceso\n");
     } 
-    else if (comando == "Medica,Atendida") {
+    else if (comando == "Medica,Atendida" && tipoEmerg == MEDICA) {
       esEmerg = MEDICA_ATENDIDA;
       initCronometroSeguro();
       actualizarEstados();
-      Serial.println(F("Medica Atendida\n"));
+      Serial.println("Medica Atendida\n");
     } 
-    else if (comando == "Medica,Falsa") {
+    else if (comando == "Medica,Falsa" && tipoEmerg == MEDICA) {
       esEmerg = MEDICA_FALSA;
       initCronometroSeguro();
       actualizarEstados();
-      Serial.println(F("Medica Falsa Alarma\n"));
+      Serial.println("Medica Falsa Alarma\n");
     } 
-    else if (comando == "Seguridad,EnProceso") {
+    else if (comando == "Seguridad,EnProceso" && tipoEmerg == SEGURIDAD) {
       esEmerg = SEGURIDAD_PROCESO;
       actualizarEstados();
-      Serial.println(F("Seguridad en proceso\n"));
+      Serial.println("Seguridad en proceso\n");
     } 
-    else if (comando == "Seguridad,Atendida") {
+    else if (comando == "Seguridad,Atendida" && tipoEmerg == SEGURIDAD) {
       esEmerg = SEGURIDAD_ATENDIDA;
       initCronometroSeguro();
       actualizarEstados();
-      Serial.println(F("Seguridad Atendida\n"));
+      Serial.println("Seguridad Atendida\n");
     } 
-    else if (comando == "Seguridad,Falsa") {
+    else if (comando == "Seguridad,Falsa" && tipoEmerg == SEGURIDAD) {
       esEmerg = SEGURIDAD_FALSA;
       initCronometroSeguro();
       actualizarEstados();
-      Serial.println(F("Seguridad Falsa Alarma\n"));
+      Serial.println("Seguridad Falsa Alarma\n");
     }else{
-      Serial.print(F("[COMMAND ERROR] El comando '"));
+      Serial.print("[COMMAND ERROR] El comando '");
       Serial.print(comando);                             
-      Serial.println(F("' no es reconocido.\n"));
+      Serial.println("' no es reconocido.\n");
       return;
     }
   }
   else{
-    Serial.println(F("[STATUS ERROR] Accion denegada: El sistema se encuentra en estado SEGURO.\n"));
+    Serial.println("[STATUS ERROR] Accion denegada: El sistema se encuentra en estado SEGURO.\n");
     return;
   }
 }
@@ -300,6 +308,8 @@ void actualizarEstados(){
   }
 }
 
+// Inicia el temporizador que devolverá el sistema
+// automáticamente al estado SEGURO.
 void initCronometroSeguro(){
    ultimoCambioSeguro = millis();
    yaCambioASeguro = true;
@@ -323,6 +333,9 @@ void estadoSeguroSystem(){
  }
 }
 
+// Control central de alarmas.
+// Dependiendo del estado actual de la emergencia, activa LEDs,
+// buzzer y demás indicadores.
 void sirena(){
 
   switch (esEmerg){
@@ -410,6 +423,8 @@ void LED_Estado_falsaAlar(){
   digitalWrite(led_Verde, LOW);
 }
 
+// Actualiza la información mostrada en la pantalla LCD
+// según el estado actual del sistema
 void actualizarLCD(){
   
   if(esEmerg == EMERGENCIA_ACTIVA){
@@ -466,6 +481,9 @@ void actualizarLCD(){
     break;
   }
 }
+
+// Función para escribir mensajes
+// de dos líneas en la pantalla LCD.
 
 void mensajeText(String mensaje1, String mensaje2){
     lcd.clear();

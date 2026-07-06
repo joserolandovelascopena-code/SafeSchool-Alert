@@ -35,37 +35,37 @@ Todos los mensajes enviados entre la aplicación y Arduino siguen un formato est
 #### 1. Cambiar estado de emergencia Médica a Atendida:
 
 ```bash
- Medica,Atendida#
+Medica,Atendida#
 ```
 
 #### 2. Cambiar estado de emergencia Médica a En Proceso:
 
 ```bash
- Medica,EnProceso#
+Medica,EnProceso#
 ```
 
 #### 3. Cambiar estado de emergencia Médica a Falsa Alarma:
 
 ```bash
- Medica,Falsa#
+Medica,Falsa#
 ```
 
 #### 4. Cambiar estado de emergencia de Seguridad a Atendida:
 
 ```bash
- Seguridad,Atendida#
+Seguridad,Atendida#
 ```
 
 #### 5. Cambiar estado de emergencia de Seguridad a En Proceso:
 
 ```bash
- Seguridad,EnProceso#
+Seguridad,EnProceso#
 ```
 
 #### 6. Cambiar estado de emergencia de Seguridad a Falsa Alarma:
 
 ```bash
- Seguridad,Falsa#
+Seguridad,Falsa#
 ```
 
 > [!IMPORTANT]
@@ -75,7 +75,7 @@ Todos los mensajes enviados entre la aplicación y Arduino siguen un formato est
 
 Si se desea simular el sistema desde un entorno virtual, el proyecto esta disponible en la plataforma de Tinkercad. Solo tienes que ingresar al siguiente Link.
 
-- [SafeSchool Alert](https://www.tinkercad.com/things/fP5tqtgbbGX-copy-of-sistema-safeschool-alert-version-final/editel?returnTo=https%3A%2F%2Fwww.tinkercad.com%2Fdashboard&sharecode=V_xCmYJnCPcHeqlrGn7uIIG3u9PSOKJf7-YNFGOO0YM)
+- [SafeSchool Alert](https://www.tinkercad.com/things/fP5tqtgbbGX-001-sistema-safeschool-alert-version-final/editel?returnTo=https%3A%2F%2Fwww.tinkercad.com%2Fdashboard&sharecode=V_xCmYJnCPcHeqlrGn7uIIG3u9PSOKJf7-YNFGOO0YM)
 
 > [!TIP]
 > Para simular una emergencia por incendio en Tinkercad, de clic en en el sensor de Gas, de color blanco, y traslade la nube de uno al sensor y se activara la alarma automaticamente.
@@ -93,8 +93,16 @@ Asegúrate de tener instalado lo siguiente en tu ordenador:
 
 ### 2. Clonar el repositorio
 
-Primero, clona este repositorio en tu máquina local usando la terminal:
+Luego, clona este repositorio en tu máquina local usando la terminal:
 
 ```bash
 git clone https://github.com/joserolandovelascopena-code/SafeSchool-Alert.git
 ```
+
+## Integrantes
+
+### José Rolando Velasco Peña
+
+### Luis Mario Meléndez Escobar
+
+### Ulises de Jesus Mercado Alberto
