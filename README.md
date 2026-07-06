@@ -1,6 +1,13 @@
-# SafeSchool Alert
+![Banner repo](./Capturas/bannerApp.png)
 
-El sistema **SafeSchool Alert** es una plataforma de alertas escolares desarrollada con **MIT App Inventor** y el microcontrolador **Arduino Uno**. El sistema funciona como una máquina de estados para sistemas embebidos, controlada por una aplicación móvil que se encarga de enviar comandos que el Arduino interpreta para tomar decisiones y actualizar el estado de una emergencia.
+<h1 align="center" color="#3a4dff">SafeSchool Alert</h1>
+
+El sistema **SafeSchool Alert** es una plataforma de alertas escolares desarrollada con **MIT App Inventor** y el microcontrolador **Arduino Uno**. El sistema pretende solucionar la problemática de la deficiencia al momento de informar y alertar a la población educativa durante una emergencia que ponga en riesgo la seguridad de los estudiantes o del personal docente. Para solucionar esta problemática se desarrolla **SafeSchool Alert**, un sistema que pretende ser el intermediario informativo al momento de detectar y comunicar una emergencia dentro de una institución educativa.
+
+El sistema se implementará utilizando **MIT App Inventor**, con el cual se desarrollará la aplicación móvil encargada de informar a la población educativa cuando se active o genere una emergencia. Del mismo modo, servirá como medio de comunicación para enviar comandos al **Arduino Uno**, permitiendo cambiar los estados de la emergencia. El Arduino se encargará de activar la sirena de emergencia, manejar la lógica principal de los estados de la emergencia e informar a la aplicación cuando se active una emergencia, ya sea de forma manual o automática por medio de sensores distribuidos a lo largo de la institución.
+
+> [!NOTE]
+> Es de vital importancia recalcar que, actualmente, el proyecto se encuentra en la **fase N.° 2**, la cual consiste en desarrollar el prototipo funcional propuesto del sistema y del circuito real en Tinkercad. Por esta razón, en este avance el repositorio únicamente contiene el código fuente del Arduino, escrito en C++, y el diseño y la lógica del circuito electrónico. La aplicación móvil aún no forma parte de esta fase, por lo que será desarrollada y presentada en una fase posterior del proyecto SafeSchool Alert.
 
 ## Funciones Principales del Sistema
 
