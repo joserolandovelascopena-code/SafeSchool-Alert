@@ -1,6 +1,7 @@
 // C++
 //
 
+
 // Configuración del HARDWARE
 // Pines utilizados,variables globales de estados y temporalizadores 
 
@@ -11,6 +12,19 @@ int led_Rojo = 6;
 int led_Amari = 5;
 int led_Verde = 4;
 int led_Azul = 3;
+
+unsigned long ultimoCambioLedRoj = 0;
+unsigned long ultimoCambioLedAma = 0;
+unsigned long ultimoCambioLedVer = 0;
+unsigned long ultimoCambioLedAzu = 0;
+unsigned long ultimoCambioSeguro = 0;
+unsigned long ultimoCambioSirenaCT = 0;
+unsigned long ultimoCambioSirenaDT = 0;
+
+bool estadoLedRoj = false;
+bool estadoLedAma = false;
+bool estadoLedVer = false;
+bool estadoLedAzu = false;
 
 int btn_Edi_A_Medica = 13;
 int btn_Edi_A_Seguridad = A1;
@@ -25,19 +39,15 @@ int buzzer = 2;
 int sensor = A0;
 
 const byte TAM_BUFFER = 30;
-const int UNBRAL_SEGURO = 500;
+const int UMBRAL_SEGURO = 500;
 
 char buffer[TAM_BUFFER];
 int indice = 0;
 
-
 bool estadoHumo = false;
 bool yaCambioASeguro = false;
 
-unsigned long ultimoCambioSeguro = 0;
-
-
-// Enum de estados de recibimiento de comandos por serial de la app
+// Enum de estados de resivimiento de comandos de la app
 enum estadoRecepcion {
   RECIBIENDO,
   MENSAJE_COMPLETO,
@@ -57,7 +67,8 @@ enum estadoEmergencia{
   SEGURIDAD_FALSA,
 };
 
-// Emun de los tipos de emergencia, que el sistema detecta
+// Emun de los tipos de emergencia, que el sistema puede detectar 
+// administrar
 enum tipoEmergencia{
   TE_NINGUNA,
   INCENDIO,
@@ -65,7 +76,7 @@ enum tipoEmergencia{
   SEGURIDAD,
 };
 
-// Emun de las ubicaciónes del instituto
+// Emun de encanrgado de las ubicaciónes del instituto
 enum zonaEmergencia {
   ZE_NINGUNA,
   EDIF_A,
@@ -79,9 +90,14 @@ estadoEmergencia esEmerg;
 tipoEmergencia tipoEmerg;
 zonaEmergencia zona;
 
-//Configuración de pines de componestes, pines de pantalla LCD y Serial
+
+bool tonoAlto = true;
+bool estadoBuzzer = false;
+
 void setup() {
+  //Configuración de pines de componestes, pines de pantalla LCD y iniciar serial
   Serial.begin(9600);
+  Serial.setTimeout(10);
   lcd.begin(16, 2);
 
   pinMode(led_Rojo, OUTPUT);
@@ -105,9 +121,10 @@ void setup() {
   lcd.setCursor(0, 1);
   lcd.print(F("Sistema listo..."));
 
-  delay(2000);
+  delay(2500);
   lcd.clear();
 }
+
 
 // Loop BUCLE PRINCIPAL
 // Ejecuta cada función que realiza una responsabilidad específica (MÓDULOS DEL SISTEMA)
@@ -118,20 +135,21 @@ void loop() {
   mensajeCompleto();
   estadoSeguroSystem();
   sirena();
+  encenderLEDs();
+  delay(300);
 }
 
 // Lógica del sensor de Humo, para dectar si hay un incendio automaticamente
 void sensorHumo(){
   int humo = analogRead(sensor);
   
-  if(humo >= UNBRAL_SEGURO && esEmerg == SEGURO){
+  if(humo >= UMBRAL_SEGURO && esEmerg == SEGURO){
     esEmerg = EMERGENCIA_ACTIVA;
     tipoEmerg = INCENDIO;
     mensajeText("Emerg: Incendio","Edificio A: 1C");
   }
-  else if(humo < UNBRAL_SEGURO && tipoEmerg == INCENDIO &&
+  else if(humo < UMBRAL_SEGURO && tipoEmerg == INCENDIO &&
    esEmerg == EMERGENCIA_ACTIVA){
-   esEmerg = SEGURO;
    tipoEmerg = TE_NINGUNA;
    esEmerg = INCENDIO_ATENDIDA;
    mensajeText("Emerg: Incendio","Ha sido Atendida");
@@ -139,8 +157,7 @@ void sensorHumo(){
   }
 }
 
-/* Modulo de Pulsadore, activa una emergencial, al dar clic en un pulsador*/
-
+/* Modulo de Pulsadores, en cangarado de activar una emergencial al dar clic en un pulsador*/
 void btnsEmergencias(){
   int estadoBtnMe1 = digitalRead(btn_Edi_A_Medica);
   int estadoBtnSe1 = digitalRead(btn_Edi_A_Seguridad);
@@ -191,11 +208,11 @@ void btnsEmergencias(){
     actualizarLCD();
   }
 }
-    
+
 /* RECEPCIÓN DE DATOS
    Buffer donde se almacena el comando recibido desde la App hasta 
    detectar el carácter de fin '#' */
-
+        
 void leerSerial() {
   
  while (Serial.available() > 0) {
@@ -227,7 +244,7 @@ void leerSerial() {
       indice++;
      }
      else {
-      Serial.println("[COMMAND ERROR] El comando sobrepasa el limite permitido.\n");
+      Serial.println(F("[COMMAND ERROR] El comando sobrepasa el limite permitido.\n"));
       estado = ERROR_BUFFER;
      }
      
@@ -239,6 +256,7 @@ void leerSerial() {
 }
 
 //Detecta cuándo el mensaje fue resivido completamente, al recibir "#"
+
 void mensajeCompleto(){
   if(estado == MENSAJE_COMPLETO){ 
     enviarMensaje();
@@ -247,8 +265,9 @@ void mensajeCompleto(){
   }
 }
 
+
 void enviarMensaje() {
-  Serial.println("[SUCCESS] Comunicacion con App establecida sin errores.");
+  Serial.println(F("[SUCCESS] Comunicacion con App establecida sin errores."));
   descifrarEstados(buffer);
 }
 
@@ -256,171 +275,118 @@ void enviarMensaje() {
 // y actualiza la máquina de estados del sistema.
 void descifrarEstados(String comando) {
   if(esEmerg != SEGURO){
-    if (comando == "Medica,EnProceso" && tipoEmerg == MEDICA){
+    if (comando == "Medica,EnProceso" && tipoEmerg == MEDICA) {
       esEmerg = MEDICA_PROCESO;
       actualizarEstados();
-      Serial.println("Medica en proceso\n");
+      Serial.println(F("Medica en proceso\n"));
     } 
     else if (comando == "Medica,Atendida" && tipoEmerg == MEDICA) {
       esEmerg = MEDICA_ATENDIDA;
       initCronometroSeguro();
       actualizarEstados();
-      Serial.println("Medica Atendida\n");
+      Serial.println(F("Medica Atendida\n"));
     } 
     else if (comando == "Medica,Falsa" && tipoEmerg == MEDICA) {
       esEmerg = MEDICA_FALSA;
       initCronometroSeguro();
       actualizarEstados();
-      Serial.println("Medica Falsa Alarma\n");
+      Serial.println(F("Medica Falsa Alarma\n"));
     } 
     else if (comando == "Seguridad,EnProceso" && tipoEmerg == SEGURIDAD) {
       esEmerg = SEGURIDAD_PROCESO;
       actualizarEstados();
-      Serial.println("Seguridad en proceso\n");
+      Serial.println(F("Seguridad en proceso\n"));
     } 
     else if (comando == "Seguridad,Atendida" && tipoEmerg == SEGURIDAD) {
       esEmerg = SEGURIDAD_ATENDIDA;
       initCronometroSeguro();
       actualizarEstados();
-      Serial.println("Seguridad Atendida\n");
+      Serial.println(F("Seguridad Atendida\n"));
     } 
     else if (comando == "Seguridad,Falsa" && tipoEmerg == SEGURIDAD) {
       esEmerg = SEGURIDAD_FALSA;
       initCronometroSeguro();
       actualizarEstados();
-      Serial.println("Seguridad Falsa Alarma\n");
+      Serial.println(F("Seguridad Falsa Alarma\n"));
     }else{
-      Serial.print("[COMMAND ERROR] El comando '");
+      Serial.print(F("[COMMAND ERROR] El comando '"));
       Serial.print(comando);                             
-      Serial.println("' no es reconocido.\n");
+      Serial.println(F("' no es reconocido.\n"));
       return;
     }
   }
   else{
-    Serial.println("[STATUS ERROR] Accion denegada: El sistema se encuentra en estado SEGURO.\n");
+    Serial.println(F("[STATUS ERROR] Accion denegada: El sistema se encuentra en estado SEGURO.\n"));
     return;
   }
 }
 
+// Inicia el temporizador que devolverá el sistema
+// automáticamente al estado SEGURO.
 void actualizarEstados(){
  if(esEmerg != SEGURO){
    actualizarLCD();
   }
 }
 
-// Inicia el temporizador que devolverá el sistema
-// automáticamente al estado SEGURO.
-void initCronometroSeguro(){
-   ultimoCambioSeguro = millis();
-   yaCambioASeguro = true;
-}
-
-void estadoSeguroSystem(){
-  
- if(yaCambioASeguro && millis() - ultimoCambioSeguro >= 600){
-    yaCambioASeguro = false;
-   
-    esEmerg = SEGURO;
-    tipoEmerg = TE_NINGUNA;
-    zona = ZE_NINGUNA;
-    mensajeText("Estado Instituto","Seguro");
-    digitalWrite(led_Rojo, LOW);
-    digitalWrite(led_Amari, LOW);
-    digitalWrite(led_Verde, LOW);
-    digitalWrite(led_Azul, LOW);
-    
-    ultimoCambioSeguro = millis();   
- }
-}
-
 // Control central de alarmas.
 // Dependiendo del estado actual de la emergencia, activa LEDs,
 // buzzer y demás indicadores.
+
 void sirena(){
 
   switch (esEmerg){
     case EMERGENCIA_ACTIVA:
-    LED_Alarma_Activa();
-    break;
-    
-    case INCENDIO_ATENDIDA:
-    noTone(buzzer);
-    LED_Estado_Atendida();
-    break;
-    
-    case MEDICA_ATENDIDA:
-    noTone(buzzer);
-    LED_Estado_Atendida();
-    break;
-    
-    case MEDICA_FALSA:
-    noTone(buzzer);
-    LED_Estado_falsaAlar();
-    break;
-    
-    case SEGURIDAD_ATENDIDA:
-    noTone(buzzer);
-    LED_Estado_Atendida();
-    break;
-    
-    case SEGURIDAD_FALSA:
-    noTone(buzzer);
-    LED_Estado_falsaAlar();
-    break;
-    
+      sirenaContinuaAsync(400, 900, 200);
+      break;
+
     case MEDICA_PROCESO:
-    LED_Alarma_EnProgreso();
-    break;
+      sirenaDiscontinuaAsync(900, 500, 300);
+      break;
 
     case SEGURIDAD_PROCESO:
-    LED_Alarma_EnProgreso();
-    break;
-    
+      sirenaDiscontinuaAsync(900, 500, 500);
+      break;
+
     default:
-        noTone(buzzer);
-    break;
+      noTone(buzzer);
+      break;
   }
 }
 
+//BUZZER
+//Lógica para crear melodias del Buzzer Continua o Descontinua
 
-void LED_Alarma_Activa(){
-  digitalWrite(led_Rojo, HIGH);
-  digitalWrite(led_Amari, LOW);
-  digitalWrite(led_Verde, LOW);
-  digitalWrite(led_Azul, LOW);
-  for (int i = 0; i < 3; i++) {
-    tone(buzzer, 300);
-    delay(300);
-    tone(buzzer, 900);
-    delay(300);
+void sirenaContinuaAsync(int frec1, int frec2, int intervalo){
+  
+ if (millis() - ultimoCambioSirenaCT >= intervalo){
+   ultimoCambioSirenaCT = millis();
+   tonoAlto = !tonoAlto;
+
+   if (tonoAlto){ 
+     tone(buzzer, frec1);
+   }
+   else{
+   tone(buzzer, frec2);
+   }
+ }
+  
+}
+
+void sirenaDiscontinuaAsync(int frecuencia, int duracionTono, int tiempoApagado){
+ unsigned long tiempoActual = millis();
+ unsigned long intervaloActual = estadoBuzzer ? duracionTono : tiempoApagado;
+
+   if (tiempoActual - ultimoCambioSirenaDT >= intervaloActual) {
+     ultimoCambioSirenaDT = tiempoActual;
+     estadoBuzzer = !estadoBuzzer;
+
+     if (estadoBuzzer) {
+       tone(buzzer, frecuencia);
+     } else {
+       noTone(buzzer);
+     }
   }
-}
-
-void LED_Alarma_EnProgreso(){
-  digitalWrite(led_Amari, HIGH);
-  digitalWrite(led_Rojo, LOW);
-  digitalWrite(led_Verde, LOW);
-  digitalWrite(led_Azul, LOW);
-  for (int i = 0; i < 3; i++) {
-   tone(buzzer, 900);
-   delay(500);
-   noTone(buzzer);
-   delay(1000);
-  }
-}
-
-void LED_Estado_Atendida(){
-  digitalWrite(led_Verde, HIGH);
-  digitalWrite(led_Rojo, LOW);
-  digitalWrite(led_Amari, LOW);
-  digitalWrite(led_Azul, LOW);
-}
-
-void LED_Estado_falsaAlar(){
-  digitalWrite(led_Azul, HIGH);
-  digitalWrite(led_Rojo, LOW);
-  digitalWrite(led_Amari, LOW);
-  digitalWrite(led_Verde, LOW);
 }
 
 // Actualiza la información mostrada en la pantalla LCD
@@ -482,6 +448,110 @@ void actualizarLCD(){
   }
 }
 
+//LEDS INDICADORES
+//Función que se encarga de activar y desactivar LEDs indicadores de estados
+//Verifica continuamente, si a tambiado un estado de una emergencia para activar LEDs
+// utilizando Milli();
+void encenderLEDs(){
+   switch (esEmerg){
+    case SEGURO:
+     digitalWrite(led_Rojo, LOW);
+     digitalWrite(led_Amari, LOW);
+     digitalWrite(led_Verde, LOW);
+     digitalWrite(led_Azul, LOW);  
+    break;
+    
+    case EMERGENCIA_ACTIVA:
+     if(millis() - ultimoCambioLedRoj >= 100){
+       estadoLedRoj = !estadoLedRoj;
+       digitalWrite(led_Rojo, estadoLedRoj);
+       ultimoCambioLedRoj = millis();
+     }
+     digitalWrite(led_Amari, LOW);
+     digitalWrite(led_Verde, LOW);
+     digitalWrite(led_Azul, LOW);  
+    break;
+    
+    case INCENDIO_ATENDIDA:
+     if(millis() - ultimoCambioLedVer >= 100){
+       estadoLedVer = !estadoLedVer;
+       digitalWrite(led_Verde, estadoLedVer);
+       ultimoCambioLedVer = millis();
+     }
+     digitalWrite(led_Rojo, LOW);
+     digitalWrite(led_Amari, LOW);
+     digitalWrite(led_Azul, LOW);
+    break;
+     
+    case MEDICA_PROCESO:
+     if(millis() - ultimoCambioLedAma >= 100){
+       estadoLedAma = !estadoLedAma;
+       digitalWrite(led_Amari, estadoLedAma);
+       ultimoCambioLedAma = millis();
+     }
+     digitalWrite(led_Rojo, LOW);
+     digitalWrite(led_Verde, LOW);
+     digitalWrite(led_Azul, LOW);
+    break;
+    
+    case MEDICA_ATENDIDA:
+     if(millis() - ultimoCambioLedVer >= 100){
+       estadoLedVer = !estadoLedVer;
+       digitalWrite(led_Verde, estadoLedVer);
+       ultimoCambioLedVer = millis();
+     }
+     digitalWrite(led_Rojo, LOW);
+     digitalWrite(led_Amari, LOW);
+     digitalWrite(led_Azul, LOW);
+    break;
+    
+    case MEDICA_FALSA:
+     if(millis() - ultimoCambioLedAzu >= 100){
+       estadoLedAzu = !estadoLedAzu;
+       digitalWrite(led_Azul, estadoLedAzu);
+       ultimoCambioLedAzu = millis();
+     }
+     digitalWrite(led_Rojo, LOW);
+     digitalWrite(led_Amari, LOW);
+     digitalWrite(led_Verde, LOW);
+    break;
+    
+    case SEGURIDAD_PROCESO:
+     if(millis() - ultimoCambioLedAma >= 100){
+       estadoLedAma = !estadoLedAma;
+       digitalWrite(led_Amari, estadoLedAma);
+       ultimoCambioLedAma = millis();
+     }
+     digitalWrite(led_Rojo, LOW);
+     digitalWrite(led_Verde, LOW);
+     digitalWrite(led_Azul, LOW);
+    break;
+    
+    case SEGURIDAD_ATENDIDA:
+     if(millis() - ultimoCambioLedVer >= 100){
+       estadoLedVer = !estadoLedVer;
+       digitalWrite(led_Verde, estadoLedVer);
+       ultimoCambioLedVer = millis();
+     }
+     digitalWrite(led_Rojo, LOW);
+     digitalWrite(led_Amari, LOW);
+     digitalWrite(led_Azul, LOW);
+    break;
+    
+    case SEGURIDAD_FALSA:
+     if(millis() - ultimoCambioLedAzu >= 100){
+       estadoLedAzu = !estadoLedAzu;
+       digitalWrite(led_Azul, estadoLedAzu);
+       ultimoCambioLedAzu = millis();
+     }
+     digitalWrite(led_Rojo, LOW);
+     digitalWrite(led_Amari, LOW);
+     digitalWrite(led_Verde, LOW);
+    break;
+  }
+}
+
+
 // Función para escribir mensajes
 // de dos líneas en la pantalla LCD.
 
@@ -493,4 +563,31 @@ void mensajeText(String mensaje1, String mensaje2){
     lcd.print(mensaje2);
 }
 
+//Función encargada de inicar el contador para regresar a estado SEGURO, al pasar medio segundo.
 
+
+void initCronometroSeguro(){
+   ultimoCambioSeguro = millis();
+   yaCambioASeguro = true;
+}
+
+//Función que detecta cuando es hora de activar el Estado Seguro del Sistema
+void estadoSeguroSystem(){
+  
+ if(yaCambioASeguro && millis() - ultimoCambioSeguro >= 1000){
+    yaCambioASeguro = false;
+   
+    esEmerg = SEGURO;
+    tipoEmerg = TE_NINGUNA;
+    zona = ZE_NINGUNA;
+    mensajeText("Estado Instituto","Seguro");
+    digitalWrite(led_Rojo, LOW);
+    digitalWrite(led_Amari, LOW);
+    digitalWrite(led_Verde, LOW);
+    digitalWrite(led_Azul, LOW);
+    
+    ultimoCambioSeguro = millis();
+    
+ }
+  
+}
