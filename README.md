@@ -21,48 +21,19 @@ El sistema **SafeSchool Alert** es una plataforma de alertas escolares desarroll
 ## Tabla de Componenetes Electronicos
 
 En este apartado se presentan los distintos componentes importantes y empleados para construir el circuito, como la cantidad de componentes, función e importancia de cada componente dentro del sistema
-
-| N°  | Función       |                                              | Cantidad | Valor |
-| --- | ------------- | -------------------------------------------- | -------- | ----- |
-| 1   | Arduino       | Microcontrolador en cargado de compilar      | 1        | ~~    |
-|     |               | el código y tomar decisiones en el           |          |       |
-|     |               | circuito y activación de componentes         |          |       |
-|     |               | (El celebro del circuito).                   |          |       |
-| --- | ------------- | -------------------------------------------- | -------- | ----- |
-| 1   | Sensor MQ-2   | Detecta niveles peligrosos de humo y         | 1        | ~~    |
-|     |               | gas, permitiendo identificar automáticamente |          |       |
-|     |               | posibles incendios o situaciones de          |          |       |
-|     |               | riesgo po incendio.                          |          |       |
-| --- | ------------- | -------------------------------------------- | -------- | ----- |
-| 2   | Pantalla LCD  | Mostrar mensajes de estado e información     | 1        | ~~    |
-|     |               | de emergencias activas o detectadas          |          |       |
-|     |               | en la nstitución.                            |          |       |
-| --- | ------------- | -------------------------------------------- | -------- | ----- |
-| 3   | Potenciómetro | Su función en el circuito es ajustar el      | 1        | 4V    |
-|     |               | contraste, de la pantalla LCD para           |          |       |
-|     |               | que esta muestre una imagen con mejor        |          |       |
-|     |               | resolución.                                  |          |       |
-| --- | ------------- | -------------------------------------------- | -------- | ----- |
-| 4   | LED Rojo      | Indica una emergencia activa detectada.      | 1        | ~~    |
-| --- | ------------- | --------------------------------------- ---- | -------- | ----- |
-| 4   | LED Verde     | Indica que la emergencia activa fue          | 1        | ~~    |
-|     |               | atendida.                                    |          |       |
-| --- | ------------- | -------------------------------------------- | -------- | ----- |
-| 4   | LED Amarillo  | Indica que la emergencia activa está en      | 1        | ~~    |
-|     |               | proceso.                                     |          |       |
-| --- | ------------- | -------------------------------------------- | -------- | ----- |
-| 4   | LED Azul      | Indica que la emergencia activa es           | 1        | ~~    |
-|     |               | falsa.                                       |          |       |
-| --- | ------------- | -------------------------------------------- | -------- | ----- |
-| 4   | Pulsadores    | Activan una emergencia manualmente, ya       | 6        | ~~    |
-|     |               | sea Médica o de Seguridad.                   |          |       |
-| --- | ------------- | -------------------------------------------- | -------- | ----- |
-| 4   | Resistencia   | Limita el flujo de corriente que pasa por el | 1        | 10 kΩ |
-|     |               | circuito para proteger los componentes.      |          |       |
-| --- | ------------- | -------------------------------------------- | -------- | ----- |
-| 4   | Resistencia   | Limita el flujo de corriente que pasa por el | 12       | 220 Ω |
-|     |               | circuito para proteger los componentes.      |          |       |
-| --- | ------------- | -------------------------------------------- | -------- | ----- |
+| N° | Componente | Función | Cantidad | Valor |
+|----|------------|----------|:--------:|:-----:|
+| 1 | Arduino | Microcontrolador en cargado de compilar<br>el código y tomar decisiones en el<br>circuito y activación de componentes<br>(El celebro del circuito). | 1 | ~~ |
+| 2 | Sensor MQ-2 | Detecta niveles peligrosos de humo y<br>gas, permitiendo identificar automáticamente<br>posibles incendios o situaciones de<br>riesgo po incendio. | 1 | ~~ |
+| 3 | Pantalla LCD | Mostrar mensajes de estado e información<br>de emergencias activas o detectadas<br>en la nstitución. | 1 | ~~ |
+| 4 | Potenciómetro | Su función en el circuito es ajustar el<br>contraste, de la pantalla LCD para<br>que esta muestre una imagen con mejor<br>resolución. | 1 | 4V |
+| 5 | LED Rojo | Indica una emergencia activa detectada. | 1 | ~~ |
+| 6 | LED Verde | Indica que la emergencia activa fue<br>atendida. | 1 | ~~ |
+| 7 | LED Amarillo | Indica que la emergencia activa está en<br>proceso. | 1 | ~~ |
+| 8 | LED Azul | Indica que la emergencia activa es<br>falsa. | 1 | ~~ |
+| 9 | Pulsadores | Activan una emergencia manualmente, ya<br>sea Médica o de Seguridad. | 6 | ~~ |
+| 10 | Resistencia | Limita el flujo de corriente que pasa por el<br>circuito para proteger los componentes. | 1 | 10 kΩ |
+| 11 | Resistencia | Limita el flujo de corriente que pasa por el<br>circuito para proteger los componentes. | 12 | 220 Ω |
 
 ## Tecnologías Utilizadas
 
@@ -198,3 +169,4 @@ git clone https://github.com/joserolandovelascopena-code/SafeSchool-Alert.git
 ### Luis Mario Meléndez Escobar
 
 ### Ulises de Jesus Mercado Alberto
+
