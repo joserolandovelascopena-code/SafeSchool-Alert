@@ -5,7 +5,7 @@
 El sistema **SafeSchool Alert** es una plataforma de alertas escolares desarrollada con **MIT App Inventor** y el microcontrolador **Arduino Uno**. El sistema pretende solucionar la problemática de la deficiencia al momento de informar y alertar a la población educativa durante una emergencia que ponga en riesgo la seguridad de los estudiantes o del personal docente. Para solucionar esta problemática se desarrolla **SafeSchool Alert**, un sistema que pretende ser el intermediario informativo al momento de detectar y comunicar una emergencia dentro de una institución educativa.
 
 > [!NOTE]
-> Es de vital importancia recalcar que, actualmente, el proyecto se encuentra en la **fase N.° 2**, la cual consiste en desarrollar el prototipo funcional propuesto del sistema y del circuito real en Tinkercad. Por esta razón, en este avance el repositorio únicamente contiene el código fuente del Arduino, escrito en C++, y el diseño y la lógica del circuito electrónico. La aplicación móvil aún no forma parte de esta fase, por lo que será desarrollada y presentada en una fase posterior del proyecto SafeSchool Alert.
+> Actualmente el proyecto se encuentra en la **Etapa N.° 3**, correspondiente al desarrollo de la aplicación móvil. Durante esta fase se implementó la interfaz gráfica en MIT App Inventor, la comunicación mediante Bluetooth HC-05 con Arduino, el almacenamiento de información utilizando CloudDB y la sincronización de los estados de emergencia entre la aplicación y el sistema electrónico. Las siguientes etapas estarán enfocadas en la integración física completa del sistema y las pruebas finales de funcionamiento.
 
 ## Caracteríticas Principales
 
@@ -17,6 +17,48 @@ El sistema **SafeSchool Alert** es una plataforma de alertas escolares desarroll
 - **Sirena continua** y sirena intermitente.
 - **LEDs de estado** para las diferentes emergencias.
 - **Comunicación y actualización mutua** entre la aplicación y Arduino.
+
+## Arquitectura del Sistema
+
+SafeSchool Alert está compuesto por dos módulos principales que trabajan de forma conjunta:
+
+- **Aplicación móvil**
+  - Desarrollada en MIT App Inventor.
+  - Permite visualizar emergencias.
+  - Envía comandos al Arduino.
+  - Gestiona usuarios.
+  - Consulta el historial.
+  - Recibe notificaciones.
+
+- **Sistema embebido**
+  - Arduino Uno.
+  - Detecta eventos.
+  - Controla sensores y actuadores.
+  - Procesa los comandos enviados desde la aplicación.
+
+## Funcionalidades de la Aplicación
+
+La aplicación móvil incorpora las siguientes funciones:
+
+- Inicio de sesión de usuarios.
+- Registro de nuevos usuarios.
+- Gestión de emergencias.
+- Historial de incidentes.
+- Comunicación Bluetooth con Arduino.
+- Recepción de estados en tiempo real.
+- Notificaciones de emergencia.
+- Control del estado de emergencias.
+- Navegación mediante menú lateral.
+- Validación automática de formularios.
+
+## Flujo General del Sistema
+
+1. El usuario inicia sesión.
+2. La aplicación establece conexión Bluetooth con Arduino.
+3. Arduino detecta una emergencia o recibe una solicitud.
+4. La aplicación recibe la información.
+5. El usuario administra el estado de la emergencia.
+6. El historial queda almacenado en CloudDB.
 
 ## Tabla de Componenetes Electronicos
 
@@ -37,14 +79,16 @@ En este apartado se presentan los distintos componentes importantes y empleados 
 
 ## Tecnologías Utilizadas
 
-| Tecnología       | Descripción                       |
-| ---------------- | --------------------------------- |
-| Arduino Uno      | Microcontrolador principal        |
-| C++              | Programación del sistema embebido |
-| MIT App Inventor | Desarrollo de la aplicación móvil |
-| Tinkercad        | Simulación del circuito           |
-| Git              | Control de versiones              |
-| GitHub           | Gestión del repositorio           |
+| Tecnología       | Descripción                        |
+| ---------------- | ---------------------------------- |
+| Arduino Uno      | Microcontrolador principal         |
+| C++              | Programación del sistema embebido  |
+| MIT App Inventor | Desarrollo de la aplicación móvil  |
+| Bluetooth HC-05  | Comunicación inalámbrica           |
+| CloudBD          | Almacenamiento de datos en la nube |
+| Tinkercad        | Simulación del circuito            |
+| Git              | Control de versiones               |
+| GitHub           | Gestión del repositorio            |
 
 ---
 
@@ -150,10 +194,18 @@ git clone https://github.com/joserolandovelascopena-code/SafeSchool-Alert.git
 
 ## Etapa 3 - Desarrollo de la Aplicación Móvil
 
-- [ ] Desarrollo de la aplicación en MIT App Inventor.
-- [ ] Integración con Bluetooth HC-05.
-- [ ] Interfaz gráfica para la gestión de emergencias.
-- [ ] Sincronización de estados entre la App y el sistema.
+- [x] Diseño de interfaces.
+- [x] Programación por bloques.
+- [x] Inicio de sesión.
+- [x] Registro de usuarios.
+- [x] Integración con CloudDB.
+- [x] Comunicación Bluetooth HC-05.
+- [x] Gestión de emergencias.
+- [x] Historial de emergencias.
+- [x] Sistema de notificaciones.
+- [x] Validación de formularios.
+- [x] Sincronización con Arduino.
+- [x] Optimización y corrección de errores.
 
 ## Etapa 4 - Implementación Física
 
@@ -169,4 +221,3 @@ git clone https://github.com/joserolandovelascopena-code/SafeSchool-Alert.git
 ### Luis Mario Meléndez Escobar
 
 ### Ulises de Jesus Mercado Alberto
-
